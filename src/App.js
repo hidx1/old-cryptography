@@ -42,7 +42,7 @@ function App() {
               </Nav>
             </Col>
             <Col sm={10} className="content-center">
-              <Tab.Content>
+              <Tab.Content className="full-width">
                 <Tab.Pane eventKey="standard-vigenere">
                   <Vigenere/>
                 </Tab.Pane>
