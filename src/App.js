@@ -1,24 +1,74 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import {
+  Tab,
+  Row,
+  Col,
+  Nav
+} from 'react-bootstrap';
+
+import Header from './Header';
+import Vigenere from './Ciphers/Vigenere';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Header/>
+      <div className="content-fluid">
+        <Tab.Container defaultActiveKey="standard-vigenere">
+          <Row>
+            <Col sm={2}>
+              <Nav variant="pills" className="flex-column">
+                <Nav.Item>
+                  <Nav.Link eventKey="standard-vigenere">Standard Vigenere Cipher</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link eventKey="full-vigenere">Full Vigenere Cipher</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link eventKey="extended-vigenere">Extended Vigenere Cipher</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link eventKey="playfair">Playfair Cipher</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link eventKey="super">Super Encryption</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link eventKey="affine">Affine Cipher</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link eventKey="hill">Hill Cipher</Nav.Link>
+                </Nav.Item>
+              </Nav>
+            </Col>
+            <Col sm={10} className="content-center">
+              <Tab.Content>
+                <Tab.Pane eventKey="standard-vigenere">
+                  <Vigenere/>
+                </Tab.Pane>
+                <Tab.Pane eventKey="full-vigenere">
+                  Full Vigenere
+                </Tab.Pane>
+                <Tab.Pane eventKey="extended-vigenere">
+                  Extended Vigenere
+                </Tab.Pane>
+                <Tab.Pane eventKey="playfair">
+                  Playfair Cipher
+                </Tab.Pane>
+                <Tab.Pane eventKey="super">
+                  Super Encryption
+                </Tab.Pane>
+                <Tab.Pane eventKey="affine">
+                  Affine Cipher
+                </Tab.Pane>
+                <Tab.Pane eventKey="hill">
+                  Hill Cipher
+                </Tab.Pane>
+              </Tab.Content>
+            </Col>
+          </Row>
+        </Tab.Container>
+      </div>
     </div>
   );
 }
