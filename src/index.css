@@ -81,6 +81,20 @@ code {
 }
 
 /* Spacing */
+:root {
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 20px;
+  --spacing-lg: 32px;
+  --spacing-xl: 52px;
+
+  --layout-xs : 8px;
+  --layout-sm : 16px;
+  --layout-md : 24px;
+  --layout-lg : 40px;
+  --layout-xl : 64px;
+  --layout-xxl : 104px;
+}
 
 .content-body {
   margin: 1rem;
@@ -93,6 +107,25 @@ code {
 
 .full-width {
   width: 100%;
+}
+
+.margin-bottom-xs {
+  margin-bottom: var(--layout-xs);
+}
+.margin-bottom-sm {
+  margin-bottom: var(--layout-sm);
+}
+.margin-bottom-md {
+  margin-bottom: var(--layout-md);
+}
+.margin-bottom-lg {
+  margin-bottom: var(--layout-lg);
+}
+.margin-bottom-xl {
+  margin-bottom: var(--layout-xl);
+}
+.margin-bottom-xxl {
+  margin-bottom: var(--layout-xxl);
 }
 
 /* Border */

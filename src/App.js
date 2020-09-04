@@ -8,6 +8,7 @@ import {
 
 import Header from './Header';
 import Vigenere from './Ciphers/Vigenere';
+import FullVigenere from './Ciphers/FullVigenere';
 
 function App() {
   return (
@@ -47,7 +48,7 @@ function App() {
                   <Vigenere/>
                 </Tab.Pane>
                 <Tab.Pane eventKey="full-vigenere">
-                  Full Vigenere
+                  <FullVigenere/>
                 </Tab.Pane>
                 <Tab.Pane eventKey="extended-vigenere">
                   Extended Vigenere

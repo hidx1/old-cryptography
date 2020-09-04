@@ -8,7 +8,7 @@ import {
   Table,
 } from 'react-bootstrap';
 
-export default class Vigenere extends React.PureComponent {
+export default class FullVigenere extends React.PureComponent {
   constructor(props) {
     super(props);
     this.action = null;
@@ -17,12 +17,14 @@ export default class Vigenere extends React.PureComponent {
                   "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
                   "U", "V", "W", "X", "Y", "Z"],
       rows: null,
+      table: null,
       numOfChar: 26,
     }
   }
 
   componentDidMount() {
     this.generateRow(26);
+    this.generatePermutationTable(this.state.alphabets);
   }
 
   generateRow(numOfChar) {
@@ -37,29 +39,73 @@ export default class Vigenere extends React.PureComponent {
     });
   }
 
-  mod(n, m) {
-    return ((n % m) + m) % m;
+  permute(charList) {
+    let array = charList.slice(0); //copy array
+    console.log(array);
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      console.log(array[i]);
+      console.log(array[j]);
+      const temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+      // [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
   }
 
+  generatePermutationTable(alphabets) {
+    const { numOfChar } = this.state;
+    const charList = alphabets.slice(0); //copy array
+    let array = [];
+    for (let i = 0; i < numOfChar; i++) {
+      array.push(this.permute(charList));
+    }
+    this.setState({
+      table: array,
+    });
+  }
+
+  // generateTable(numOfChar) {
+  //   let row = 0;
+  //   let table = [];
+  //   let stop = false;
+
+  //   for (let i = 0; row < numOfChar; i++) {
+  //     if (i % numOfChar === 0 && i !== 0) {
+  //       row++;
+  //       i = 0;
+  //       if (row === numOfChar) {
+  //         stop = true;
+  //       } 
+  //     }
+  //     if (!stop) table[row*numOfChar + i] = this.state.alphabets[(row+i)%numOfChar];
+  //   }
+
+  //   this.setState({
+  //     table: table,
+  //   });
+  // }
+
   encrypt(plainText, key) {
-    const { alphabets, numOfChar } = this.state;
+    const { alphabets, table } = this.state;
     let result = "";
     for (let i = 0; i < plainText.length; i++) {
       let row = alphabets.indexOf(key[i]);
       let col = alphabets.indexOf(plainText[i]);
-      result += alphabets[(col+row)%numOfChar];
+      result += table[row][col];
       if (i % 5 === 4) result += " ";
     }
     this.resultText.value = result;
   }
 
   decrypt(cipherText, key) {
-    const { alphabets, numOfChar } = this.state;
+    const { alphabets, table } = this.state;
     let result = "";
     for (let i = 0; i < cipherText.length; i++) {
       let row = alphabets.indexOf(key[i]);
-      let col = alphabets.indexOf(cipherText[i]);
-      result += alphabets[this.mod(col-row, numOfChar)];
+      let col = table[row].indexOf(cipherText[i]);
+      result += alphabets[col];
       if (i % 5 === 4) result += " ";
     }
     this.resultText.value = result.toLowerCase();
@@ -83,7 +129,7 @@ export default class Vigenere extends React.PureComponent {
   }
 
   render() {
-    const { alphabets, rows, numOfChar } = this.state;
+    const { alphabets, rows, table, numOfChar } = this.state;
     return (
       <React.Fragment>
         <Row>
@@ -105,6 +151,14 @@ export default class Vigenere extends React.PureComponent {
                 <Form.Control as="textarea" rows="6" ref={(ref)=>{this.resultText=ref}}/>
               </Form.Group>
               
+              <Button 
+                variant="success"
+                type="button"
+                className="margin-bottom-xs"
+                onClick={() => this.generatePermutationTable(alphabets)}
+              > Randomize Vigenere Square
+              </Button>
+
               <Button 
                 variant="primary"
                 type="submit"
@@ -143,7 +197,7 @@ export default class Vigenere extends React.PureComponent {
                         <td>{char}</td>
                         { rows.map(itr => {
                           return (
-                            <td key={itr}>{alphabets[(idx+idx*numOfChar+itr)%numOfChar]}</td>
+                            <td key={itr}>{table[idx][itr]}</td>
                           )
                         })}
                       </tr>
