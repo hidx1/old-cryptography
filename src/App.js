@@ -9,6 +9,7 @@ import {
 import Header from './Header';
 import Vigenere from './Ciphers/Vigenere';
 import FullVigenere from './Ciphers/FullVigenere';
+import ExtendedVigenere from './Ciphers/ExtendedVigenere';
 
 function App() {
   return (
@@ -51,7 +52,7 @@ function App() {
                   <FullVigenere/>
                 </Tab.Pane>
                 <Tab.Pane eventKey="extended-vigenere">
-                  Extended Vigenere
+                  <ExtendedVigenere/>
                 </Tab.Pane>
                 <Tab.Pane eventKey="playfair">
                   Playfair Cipher

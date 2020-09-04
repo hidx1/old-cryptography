@@ -69,12 +69,21 @@ export default class Vigenere extends React.PureComponent {
     event.preventDefault();
     let text = event.target.inputText.value.replace(/[^A-Za-z]/g, "").toUpperCase();
     let key = event.target.key.value.toUpperCase();
-    if (key.length < text.length) {
-      let numOfRepeat = Math.ceil((text.length-key.length)/key.length)+1;
-      key = key.repeat(numOfRepeat).substr(0, text.length);
-    } else {
+    let autoKey = event.target.autoKey.checked;
+    if (autoKey) {
+      key += text;
       key = key.substr(0, text.length);
+    } else {
+      if (key.length < text.length) {
+        let numOfRepeat = Math.ceil((text.length-key.length)/key.length)+1;
+        key = key.repeat(numOfRepeat).substr(0, text.length);
+      } else {
+        key = key.substr(0, text.length);
+      }
     }
+    
+    this.fullKey.value = key;
+    
     if (this.action === "encrypt") {
       this.encrypt(text, key);
     } else {
@@ -98,6 +107,15 @@ export default class Vigenere extends React.PureComponent {
               <Form.Group controlId="key">
                 <Form.Label>Key</Form.Label> 
                 <Form.Control type="text"/>
+              </Form.Group>
+
+              <Form.Group controlId="autoKey">
+                <Form.Check type="checkbox" label="Use Auto-Key Vigenere Cipher"/>
+              </Form.Group>
+
+              <Form.Group controlId="fullKey">
+                <Form.Label>Full Key</Form.Label> 
+                <Form.Control type="text" readOnly ref={(ref)=>{this.fullKey=ref}}/>
               </Form.Group>
 
               <Form.Group controlId="resultText">
