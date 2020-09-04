@@ -8,6 +8,10 @@ import {
   Table,
 } from 'react-bootstrap';
 
+import {
+  readFile
+} from './helper';
+
 export default class FullVigenere extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -41,15 +45,9 @@ export default class FullVigenere extends React.PureComponent {
 
   permute(charList) {
     let array = charList.slice(0); //copy array
-    console.log(array);
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      console.log(array[i]);
-      console.log(array[j]);
-      const temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
-      // [array[i], array[j]] = [array[j], array[i]];
+      [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
   }
@@ -113,27 +111,56 @@ export default class FullVigenere extends React.PureComponent {
 
   handleSubmit = (event) => {
     event.preventDefault();
-    let text = event.target.inputText.value.replace(/[^A-Za-z]/g, "").toUpperCase();
     let key = event.target.key.value.toUpperCase();
     let autoKey = event.target.autoKey.checked;
-    if (autoKey) {
-      key += text;
-      key = key.substr(0, text.length);
+
+    if (event.target.inputFile.files.length > 0) {
+      let file = event.target.inputFile.files[0];
+      let result = readFile(file);
+      event.target.inputFile.value = "";
+      result.then(res => {
+        let text = res.replace(/[^A-Za-z]/g, "").toUpperCase();
+        if (autoKey) {
+          key += text;
+          key = key.substr(0, text.length);
+        } else {
+          if (key.length < text.length) {
+            let numOfRepeat = Math.ceil((text.length-key.length)/key.length)+1;
+            key = key.repeat(numOfRepeat).substr(0, text.length);
+          } else {
+            key = key.substr(0, text.length);
+          }
+        }
+        
+        this.fullKey.value = key;
+        
+        if (this.action === "encrypt") {
+          this.encrypt(text, key);
+        } else {
+          this.decrypt(text, key);
+        }
+      });
     } else {
-      if (key.length < text.length) {
-        let numOfRepeat = Math.ceil((text.length-key.length)/key.length)+1;
-        key = key.repeat(numOfRepeat).substr(0, text.length);
-      } else {
+      let text = event.target.inputText.value.replace(/[^A-Za-z]/g, "").toUpperCase();
+      if (autoKey) {
+        key += text;
         key = key.substr(0, text.length);
+      } else {
+        if (key.length < text.length) {
+          let numOfRepeat = Math.ceil((text.length-key.length)/key.length)+1;
+          key = key.repeat(numOfRepeat).substr(0, text.length);
+        } else {
+          key = key.substr(0, text.length);
+        }
       }
-    }
-    
-    this.fullKey.value = key;
-    
-    if (this.action === "encrypt") {
-      this.encrypt(text, key);
-    } else {
-      this.decrypt(text, key);
+      
+      this.fullKey.value = key;
+      
+      if (this.action === "encrypt") {
+        this.encrypt(text, key);
+      } else {
+        this.decrypt(text, key);
+      }
     }
   }
 
@@ -150,9 +177,13 @@ export default class FullVigenere extends React.PureComponent {
                 <Form.Control as="textarea" rows="6"/>
               </Form.Group>
 
+              <Form.Group>
+                <Form.File id="inputFile" label="or upload file" />
+              </Form.Group>
+
               <Form.Group controlId="key">
                 <Form.Label>Key</Form.Label> 
-                <Form.Control type="text"/>
+                <Form.Control type="text" required/>
               </Form.Group>
 
               <Form.Group controlId="autoKey">

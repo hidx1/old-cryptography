@@ -5,26 +5,27 @@ import {
   Col,
   Form,
   Row,
-  Table,
 } from 'react-bootstrap';
+
+import {
+  readFile
+} from './helper';
 
 export default class ExtendedVigenere extends React.PureComponent {
   constructor(props) {
     super(props);
     this.action = null;
     this.state={
-      alphabets: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", 
-                  "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
-                  "U", "V", "W", "X", "Y", "Z"],
+      alphabets: null,
       rows: null,
       table: null,
-      numOfChar: 26,
+      numOfChar: 256,
     }
   }
 
   componentDidMount() {
-    this.generateRow(26);
-    this.generatePermutationTable(this.state.alphabets);
+    this.generateRow(256);
+    this.generateASCIIAlphabets();
   }
 
   generateRow(numOfChar) {
@@ -39,30 +40,13 @@ export default class ExtendedVigenere extends React.PureComponent {
     });
   }
 
-  permute(charList) {
-    let array = charList.slice(0); //copy array
-    console.log(array);
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      console.log(array[i]);
-      console.log(array[j]);
-      const temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
-      // [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  }
-
-  generatePermutationTable(alphabets) {
-    const { numOfChar } = this.state;
-    const charList = alphabets.slice(0); //copy array
-    let array = [];
-    for (let i = 0; i < numOfChar; i++) {
-      array.push(this.permute(charList));
+  generateASCIIAlphabets() {
+    let alphabets = [];
+    for (let i = 0; i < 256; i++) {
+      alphabets.push(String.fromCharCode(i));
     }
     this.setState({
-      table: array,
+      alphabets: alphabets,
     });
   }
 
@@ -87,53 +71,93 @@ export default class ExtendedVigenere extends React.PureComponent {
   //   });
   // }
 
+  mod(n, m) {
+    return ((n % m) + m) % m;
+  }
+
   encrypt(plainText, key) {
-    const { alphabets, table } = this.state;
+    const { alphabets, numOfChar } = this.state;
     let result = "";
     for (let i = 0; i < plainText.length; i++) {
       let row = alphabets.indexOf(key[i]);
       let col = alphabets.indexOf(plainText[i]);
-      result += table[row][col];
-      if (i % 5 === 4) result += " ";
+      result += alphabets[(col+row)%numOfChar];
+      // if (i % 5 === 4) result += " ";
     }
     this.resultText.value = result;
   }
 
   decrypt(cipherText, key) {
-    const { alphabets, table } = this.state;
+    const { alphabets, numOfChar } = this.state;
     let result = "";
     for (let i = 0; i < cipherText.length; i++) {
       let row = alphabets.indexOf(key[i]);
-      let col = table[row].indexOf(cipherText[i]);
-      result += alphabets[col];
-      if (i % 5 === 4) result += " ";
+      let col = alphabets.indexOf(cipherText[i]);
+      result += alphabets[this.mod(col-row, numOfChar)];
+      // if (i % 5 === 4) result += " ";
     }
-    this.resultText.value = result.toLowerCase();
+    this.resultText.value = result;
   }
 
   handleSubmit = (event) => {
     event.preventDefault();
-    let text = event.target.inputText.value.replace(/[^A-Za-z]/g, "").toUpperCase();
-    let key = event.target.key.value.toUpperCase();
-    if (key.length < text.length) {
-      let numOfRepeat = Math.ceil((text.length-key.length)/key.length)+1;
-      key = key.repeat(numOfRepeat).substr(0, text.length);
+    let key = event.target.key.value;
+    let autoKey = event.target.autoKey.checked;
+    
+    if (event.target.inputFile.files.length > 0) {
+      let file = event.target.inputFile.files[0];
+      let result = readFile(file);
+      event.target.inputFile.value = "";
+      result.then(text => {
+        if (autoKey) {
+          key += text;
+          key = key.substr(0, text.length);
+        } else {
+          if (key.length < text.length) {
+            let numOfRepeat = Math.ceil((text.length-key.length)/key.length)+1;
+            key = key.repeat(numOfRepeat).substr(0, text.length);
+          } else {
+            key = key.substr(0, text.length);
+          }
+        }
+        
+        this.fullKey.value = key;
+        
+        if (this.action === "encrypt") {
+          this.encrypt(text, key);
+        } else {
+          this.decrypt(text, key);
+        }
+      });
     } else {
-      key = key.substr(0, text.length);
-    }
-    if (this.action === "encrypt") {
-      this.encrypt(text, key);
-    } else {
-      this.decrypt(text, key);
+      let text = event.target.inputText.value;
+      if (autoKey) {
+        key += text;
+        key = key.substr(0, text.length);
+      } else {
+        if (key.length < text.length) {
+          let numOfRepeat = Math.ceil((text.length-key.length)/key.length)+1;
+          key = key.repeat(numOfRepeat).substr(0, text.length);
+        } else {
+          key = key.substr(0, text.length);
+        }
+      }
+      
+      this.fullKey.value = key;
+      
+      if (this.action === "encrypt") {
+        this.encrypt(text, key);
+      } else {
+        this.decrypt(text, key);
+      }
     }
   }
 
   render() {
-    const { alphabets, rows, table, numOfChar } = this.state;
     return (
       <React.Fragment>
         <Row>
-          <Col xs={6} className="content-start">
+          <Col xs={12} className="content-start">
             <Form onSubmit={this.handleSubmit}>
 
               <Form.Group controlId="inputText">
@@ -141,23 +165,28 @@ export default class ExtendedVigenere extends React.PureComponent {
                 <Form.Control as="textarea" rows="6"/>
               </Form.Group>
 
+              <Form.Group>
+                <Form.File id="inputFile" label="or upload file" />
+              </Form.Group>
+
               <Form.Group controlId="key">
                 <Form.Label>Key</Form.Label> 
-                <Form.Control type="text"/>
+                <Form.Control type="text" required/>
+              </Form.Group>
+
+              <Form.Group controlId="autoKey">
+                <Form.Check type="checkbox" label="Use Auto-Key Vigenere Cipher"/>
+              </Form.Group>
+
+              <Form.Group controlId="fullKey">
+                <Form.Label>Full Key</Form.Label> 
+                <Form.Control type="text" readOnly ref={(ref)=>{this.fullKey=ref}}/>
               </Form.Group>
 
               <Form.Group controlId="resultText">
                 <Form.Label>Result</Form.Label>
                 <Form.Control as="textarea" rows="6" ref={(ref)=>{this.resultText=ref}}/>
               </Form.Group>
-              
-              <Button 
-                variant="success"
-                type="button"
-                className="margin-bottom-xs"
-                onClick={() => this.generatePermutationTable(alphabets)}
-              > Randomize Vigenere Square
-              </Button>
 
               <Button 
                 variant="primary"
@@ -170,44 +199,11 @@ export default class ExtendedVigenere extends React.PureComponent {
               <Button
                 variant="secondary"
                 type="submit"
-                className="full-width"
+                className="full-width margin-bottom-lg"
                 onClick={() => this.action="decrypt"}
               > Decrypt
               </Button>
             </Form>
-          </Col>
-          <Col xs={6} className="content-end">
-          { rows ? 
-            numOfChar === 26 ? (
-              <Table striped hover responsive="xl" size="sm">
-                <thead>
-                  <tr>
-                    <th></th>
-                    { alphabets.map((char, idx) => {
-                      return (
-                        <th key={idx}>{char}</th>
-                      )
-                    })}
-                  </tr>
-                </thead>
-                <tbody>
-                  { alphabets.map((char, idx) => {
-                    return (
-                      <tr key={idx}>
-                        <td>{char}</td>
-                        { rows.map(itr => {
-                          return (
-                            <td key={itr}>{table[idx][itr]}</td>
-                          )
-                        })}
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </Table>
-            )
-            : ""
-          : ""}
           </Col>
         </Row>
       </React.Fragment>
