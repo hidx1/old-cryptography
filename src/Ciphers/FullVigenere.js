@@ -9,7 +9,8 @@ import {
 } from 'react-bootstrap';
 
 import {
-  readFile
+  readFile,
+  downloadFile,
 } from './helper';
 
 export default class FullVigenere extends React.PureComponent {
@@ -23,6 +24,7 @@ export default class FullVigenere extends React.PureComponent {
       rows: null,
       table: null,
       numOfChar: 26,
+      result: null,
     }
   }
 
@@ -94,6 +96,9 @@ export default class FullVigenere extends React.PureComponent {
       result += table[row][col];
       if (i % 5 === 4) result += " ";
     }
+    this.setState({
+      result: result,
+    });
     this.resultText.value = result;
   }
 
@@ -106,6 +111,9 @@ export default class FullVigenere extends React.PureComponent {
       result += alphabets[col];
       if (i % 5 === 4) result += " ";
     }
+    this.setState({
+      result: result,
+    });
     this.resultText.value = result.toLowerCase();
   }
 
@@ -165,7 +173,7 @@ export default class FullVigenere extends React.PureComponent {
   }
 
   render() {
-    const { alphabets, rows, table, numOfChar } = this.state;
+    const { alphabets, rows, table, numOfChar, result } = this.state;
     return (
       <React.Fragment>
         <Row>
@@ -199,9 +207,17 @@ export default class FullVigenere extends React.PureComponent {
                 <Form.Label>Result</Form.Label>
                 <Form.Control as="textarea" rows="6" ref={(ref)=>{this.resultText=ref}}/>
               </Form.Group>
-              
+
               <Button 
                 variant="success"
+                type="button"
+                className="margin-bottom-xs margin-right-sm"
+                onClick={() => downloadFile("result", result)}
+              > Download Result
+              </Button>
+              
+              <Button 
+                variant="warning"
                 type="button"
                 className="margin-bottom-xs"
                 onClick={() => this.generatePermutationTable(alphabets)}

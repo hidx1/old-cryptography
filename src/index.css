@@ -128,6 +128,25 @@ code {
   margin-bottom: var(--layout-xxl);
 }
 
+.margin-right-xs {
+  margin-right: var(--layout-xs);
+}
+.margin-right-sm {
+  margin-right: var(--layout-sm);
+}
+.margin-right-md {
+  margin-right: var(--layout-md);
+}
+.margin-right-lg {
+  margin-right: var(--layout-lg);
+}
+.margin-right-xl {
+  margin-right: var(--layout-xl);
+}
+.margin-right-xxl {
+  margin-right: var(--layout-xxl);
+}
+
 /* Border */
 .border-radius-0 {
   border-radius: 0 !important;

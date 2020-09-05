@@ -8,7 +8,8 @@ import {
 } from 'react-bootstrap';
 
 import {
-  readFile
+  readFile,
+  downloadBinaryFile,
 } from './helper';
 
 export default class ExtendedVigenere extends React.PureComponent {
@@ -20,6 +21,7 @@ export default class ExtendedVigenere extends React.PureComponent {
       rows: null,
       table: null,
       numOfChar: 256,
+      result: null,
     }
   }
 
@@ -84,6 +86,9 @@ export default class ExtendedVigenere extends React.PureComponent {
       result += alphabets[(col+row)%numOfChar];
       // if (i % 5 === 4) result += " ";
     }
+    this.setState({
+      result: result,
+    });
     this.resultText.value = result;
   }
 
@@ -96,6 +101,9 @@ export default class ExtendedVigenere extends React.PureComponent {
       result += alphabets[this.mod(col-row, numOfChar)];
       // if (i % 5 === 4) result += " ";
     }
+    this.setState({
+      result: result,
+    });
     this.resultText.value = result;
   }
 
@@ -154,6 +162,7 @@ export default class ExtendedVigenere extends React.PureComponent {
   }
 
   render() {
+    const { result } = this.state;
     return (
       <React.Fragment>
         <Row>
@@ -187,6 +196,14 @@ export default class ExtendedVigenere extends React.PureComponent {
                 <Form.Label>Result</Form.Label>
                 <Form.Control as="textarea" rows="6" ref={(ref)=>{this.resultText=ref}}/>
               </Form.Group>
+
+              <Button 
+                variant="success"
+                type="button"
+                className="margin-bottom-xs"
+                onClick={() => downloadBinaryFile("result", result)}
+              > Download Result
+              </Button>
 
               <Button 
                 variant="primary"

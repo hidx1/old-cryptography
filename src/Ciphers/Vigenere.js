@@ -9,7 +9,8 @@ import {
 } from 'react-bootstrap';
 
 import {
-  readFile
+  readFile,
+  downloadFile,
 } from './helper';
 
 export default class Vigenere extends React.PureComponent {
@@ -22,6 +23,7 @@ export default class Vigenere extends React.PureComponent {
                   "U", "V", "W", "X", "Y", "Z"],
       rows: null,
       numOfChar: 26,
+      result: null,
     }
   }
 
@@ -54,6 +56,9 @@ export default class Vigenere extends React.PureComponent {
       result += alphabets[(col+row)%numOfChar];
       if (i % 5 === 4) result += " ";
     }
+    this.setState({
+      result: result,
+    });
     this.resultText.value = result;
   }
 
@@ -66,7 +71,11 @@ export default class Vigenere extends React.PureComponent {
       result += alphabets[this.mod(col-row, numOfChar)];
       if (i % 5 === 4) result += " ";
     }
-    this.resultText.value = result.toLowerCase();
+    result = result.toLowerCase();
+    this.setState({
+      result: result,
+    });
+    this.resultText.value = result;
   }
 
   handleSubmit = (event) => {
@@ -125,7 +134,7 @@ export default class Vigenere extends React.PureComponent {
   }
 
   render() {
-    const { alphabets, rows, numOfChar } = this.state;
+    const { alphabets, rows, numOfChar, result } = this.state;
     return (
       <React.Fragment>
         <Row>
@@ -159,6 +168,14 @@ export default class Vigenere extends React.PureComponent {
                 <Form.Label>Result</Form.Label>
                 <Form.Control as="textarea" rows="6" ref={(ref)=>{this.resultText=ref}}/>
               </Form.Group>
+
+              <Button 
+                variant="success"
+                type="button"
+                className="margin-bottom-xs"
+                onClick={() => downloadFile("result", result)}
+              > Download Result
+              </Button>
               
               <Button 
                 variant="primary"
