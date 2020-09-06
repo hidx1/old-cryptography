@@ -105,11 +105,11 @@ export default class Hill extends React.PureComponent {
             key += text;
             key = key.substr(0, text.length);
           } else {
-            if (key.length < text.length) {
-              let numOfRepeat = Math.ceil((text.length-key.length)/key.length)+1;
-              key = key.repeat(numOfRepeat).substr(0, text.length);
+            if (key.length < 9) {
+              let numOfRepeat = Math.ceil((9-key.length)/key.length)+1;
+              key = key.repeat(numOfRepeat).substr(0, 9);
             } else {
-              key = key.substr(0, text.length);
+              key = key.substr(0, 9);
             }
           }
           
@@ -133,10 +133,10 @@ export default class Hill extends React.PureComponent {
           key = key.substr(0, text.length);
         } else {
           if (key.length < text.length) {
-            let numOfRepeat = Math.ceil((text.length-key.length)/key.length)+1;
-            key = key.repeat(numOfRepeat).substr(0, text.length);
+            let numOfRepeat = Math.ceil((9-key.length)/key.length)+1;
+            key = key.repeat(numOfRepeat).substr(0, 9);
           } else {
-            key = key.substr(0, text.length);
+            key = key.substr(0, 9);
           }
         }
         
@@ -177,8 +177,6 @@ export default class Hill extends React.PureComponent {
                 <Form.Label>Key</Form.Label> 
                 <Form.Control type="text" required/>
               </Form.Group>
-
-              <div className="text-danger margin-bottom-md bold">Note: Key length must be 9!</div>
 
               <Form.Group controlId="autoKey">
                 <Form.Check type="checkbox" label="Use Auto-Key"/>

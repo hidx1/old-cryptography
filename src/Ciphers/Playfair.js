@@ -261,7 +261,7 @@ export default class Playfair extends React.PureComponent {
     return (
       <React.Fragment>
         <Row className="margin-bottom-md">
-          <Col xs={6} className="content-start">
+          <Col xs={12} className="content-start">
             <Form onSubmit={this.handleSubmit}>
               <Form.Group controlId="inputText">
                 <Form.Label>Text</Form.Label>
@@ -295,15 +295,6 @@ export default class Playfair extends React.PureComponent {
                   }}
                 />
               </Form.Group>
-
-              <Form.Group controlId="resultOption">
-                <Form.Label>Result Option</Form.Label>
-                <Form.Control as="select">
-                  <option value="firstOption">No Spaces</option>
-                  <option value="secondOption">5-word Group</option>
-                </Form.Control>
-              </Form.Group>
-
 
               <Button
                 variant="success"

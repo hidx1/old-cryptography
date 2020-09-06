@@ -229,7 +229,7 @@ export default class SuperEncryption extends React.PureComponent {
     return (
       <React.Fragment>
         <Row>
-          <Col xs={6} className="content-start">
+          <Col xs={12} className="content-start">
             <Form onSubmit={this.handleSubmit}>
               <Form.Group controlId="inputText">
                 <Form.Label>Text</Form.Label>
@@ -300,7 +300,6 @@ export default class SuperEncryption extends React.PureComponent {
               </Button>
             </Form>
           </Col>
-          ;
         </Row>
       </React.Fragment>
     );
