@@ -1,19 +1,12 @@
 import React from "react";
 import { Tab, Row, Col, Nav } from "react-bootstrap";
 
-<<<<<<< HEAD
 import Header from './Header';
 import Vigenere from './Ciphers/Vigenere';
 import FullVigenere from './Ciphers/FullVigenere';
 import ExtendedVigenere from './Ciphers/ExtendedVigenere';
-import Hill from './Ciphers/Hill';
-=======
-import Header from "./Header";
-import Vigenere from "./Ciphers/Vigenere";
-import FullVigenere from "./Ciphers/FullVigenere";
-import ExtendedVigenere from "./Ciphers/ExtendedVigenere";
 import Playfair from "./Ciphers/Playfair";
->>>>>>> 38ecce5890cf139df1e59e9d3c2a52f4d690a063
+import Hill from './Ciphers/Hill';
 
 function App() {
   return (
