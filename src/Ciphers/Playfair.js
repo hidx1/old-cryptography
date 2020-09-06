@@ -290,7 +290,6 @@ export default class Playfair extends React.PureComponent {
               </Button>
             </Form>
           </Col>
-          ;
         </Row>
       </React.Fragment>
     );
