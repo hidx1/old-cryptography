@@ -21,7 +21,6 @@ export default class ExtendedVigenere extends React.PureComponent {
     this.action = null;
     this.state={
       alphabets: null,
-      rows: null,
       table: null,
       numOfChar: 256,
       result: null,
@@ -30,20 +29,7 @@ export default class ExtendedVigenere extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.generateRow(256);
     this.generateASCIIAlphabets();
-  }
-
-  generateRow(numOfChar) {
-    let rows = [];
-
-    for (let i = 0; i < numOfChar; i++) {
-      rows[i] = i;
-    }
-
-    this.setState({
-      rows: rows,
-    });
   }
 
   generateASCIIAlphabets() {
