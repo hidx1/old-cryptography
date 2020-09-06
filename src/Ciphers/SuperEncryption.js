@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Col, Form, Row } from "react-bootstrap";
-import { readFile, downloadFile, convertArrayBufferToString } from "./helper";
+import { readFileAsString, downloadFile } from "./helper";
 
 export default class SuperEncryption extends React.PureComponent {
   constructor(props) {
@@ -186,11 +186,10 @@ export default class SuperEncryption extends React.PureComponent {
 
     if (event.target.inputFile.files.length > 0) {
       let file = event.target.inputFile.files[0];
-      let result = readFile(file);
+      let result = readFileAsString(file);
       event.target.inputFile.value = "";
       result.then((res) => {
-        let buffer = new Uint8Array(res);
-        let text = convertArrayBufferToString(buffer)
+        let text = res
           .replace(/[^A-Za-z]/g, "")
           .toUpperCase();
         if (key.length < text.length) {
