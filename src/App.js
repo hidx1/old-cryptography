@@ -1,12 +1,13 @@
 import React from "react";
 import { Tab, Row, Col, Nav } from "react-bootstrap";
 
-import Header from './Header';
-import Vigenere from './Ciphers/Vigenere';
-import FullVigenere from './Ciphers/FullVigenere';
-import ExtendedVigenere from './Ciphers/ExtendedVigenere';
+import Header from "./Header";
+import Vigenere from "./Ciphers/Vigenere";
+import FullVigenere from "./Ciphers/FullVigenere";
+import ExtendedVigenere from "./Ciphers/ExtendedVigenere";
 import Playfair from "./Ciphers/Playfair";
-import Hill from './Ciphers/Hill';
+import Hill from "./Ciphers/Hill";
+import SuperEncryption from "./Ciphers/SuperEncryption";
 
 function App() {
   return (
@@ -48,14 +49,26 @@ function App() {
             </Col>
             <Col sm={10} className="content-center">
               <Tab.Content className="full-width">
-                <Tab.Pane eventKey="standard-vigenere"><Vigenere /></Tab.Pane>
-                <Tab.Pane eventKey="full-vigenere"><FullVigenere /></Tab.Pane>
+                <Tab.Pane eventKey="standard-vigenere">
+                  <Vigenere />
+                </Tab.Pane>
+                <Tab.Pane eventKey="full-vigenere">
+                  <FullVigenere />
+                </Tab.Pane>
                 <Tab.Pane eventKey="full-vigenere">Full Vigenere</Tab.Pane>
-                <Tab.Pane eventKey="extended-vigenere"><ExtendedVigenere /></Tab.Pane>
-                <Tab.Pane eventKey="playfair"><Playfair /></Tab.Pane>
-                <Tab.Pane eventKey="super">Super Encryption</Tab.Pane>
+                <Tab.Pane eventKey="extended-vigenere">
+                  <ExtendedVigenere />
+                </Tab.Pane>
+                <Tab.Pane eventKey="playfair">
+                  <Playfair />
+                </Tab.Pane>
+                <Tab.Pane eventKey="super">
+                  <SuperEncryption />
+                </Tab.Pane>
                 <Tab.Pane eventKey="affine">Affine Cipher</Tab.Pane>
-                <Tab.Pane eventKey="hill"><Hill/></Tab.Pane>
+                <Tab.Pane eventKey="hill">
+                  <Hill />
+                </Tab.Pane>
               </Tab.Content>
             </Col>
           </Row>
