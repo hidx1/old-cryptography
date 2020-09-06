@@ -79,7 +79,7 @@ export default class Playfair extends React.PureComponent {
     return keyMatrix;
   };
 
-  encrypt = (text, key) => {
+  encrypt = (text, key, resultOption) => {
     let plaintext = this.replaceUnusableChar(text);
     plaintext = this.insertX(plaintext);
     let bigramArray = this.createBigrams(plaintext);
@@ -134,13 +134,27 @@ export default class Playfair extends React.PureComponent {
     });
 
     let result = encryptedBigrams.toString().replace(/,/gi, "").toUpperCase();
+    if (resultOption === "secondOption") {
+      let newResult = "";
+      for (let i = 0; i < result.length; i += 5) {
+        newResult =
+          newResult +
+          result.charAt(i) +
+          result.charAt(i + 1) +
+          result.charAt(i + 2) +
+          result.charAt(i + 3) +
+          result.charAt(i + 4) +
+          " ";
+      }
+      result = newResult;
+    }
     this.setState({
       result: result,
     });
     this.resultText.value = result;
   };
 
-  decrypt = (text, key) => {
+  decrypt = (text, key, resultOption) => {
     let bigramArray = this.createBigrams(text);
     let keyMatrix = this.createKeyMatrix(key);
 
@@ -193,6 +207,20 @@ export default class Playfair extends React.PureComponent {
     });
 
     let result = decryptedBigrams.toString().replace(/,/gi, "").toLowerCase();
+    if (resultOption === "secondOption") {
+      let newResult = "";
+      for (let i = 0; i < result.length; i += 5) {
+        newResult =
+          newResult +
+          result.charAt(i) +
+          result.charAt(i + 1) +
+          result.charAt(i + 2) +
+          result.charAt(i + 3) +
+          result.charAt(i + 4) +
+          " ";
+      }
+      result = newResult;
+    }
     this.setState({
       result: result,
     });
@@ -202,6 +230,7 @@ export default class Playfair extends React.PureComponent {
   handleSubmit = (event) => {
     event.preventDefault();
     let key = event.target.key.value.toLowerCase();
+    let resultOption = event.target.resultOption.value;
 
     if (event.target.inputFile.files.length > 0) {
       let file = event.target.inputFile.files[0];
@@ -210,9 +239,9 @@ export default class Playfair extends React.PureComponent {
       result.then((res) => {
         let text = res.replace(/[^A-Za-z]/g, "").toLowerCase();
         if (this.action === "encrypt") {
-          this.encrypt(text, key);
+          this.encrypt(text, key, resultOption);
         } else {
-          this.decrypt(text, key);
+          this.decrypt(text, key, resultOption);
         }
       });
     } else {
@@ -220,9 +249,9 @@ export default class Playfair extends React.PureComponent {
         .replace(/[^A-Za-z]/g, "")
         .toLowerCase();
       if (this.action === "encrypt") {
-        this.encrypt(text, key);
+        this.encrypt(text, key, resultOption);
       } else {
-        this.decrypt(text, key);
+        this.decrypt(text, key, resultOption);
       }
     }
   };
@@ -246,6 +275,14 @@ export default class Playfair extends React.PureComponent {
               <Form.Group controlId="key">
                 <Form.Label>Key</Form.Label>
                 <Form.Control type="text" required />
+              </Form.Group>
+
+              <Form.Group controlId="resultOption">
+                <Form.Label>Result Option</Form.Label>
+                <Form.Control as="select">
+                  <option value="firstOption">No Spaces</option>
+                  <option value="secondOption">5-word Group</option>
+                </Form.Control>
               </Form.Group>
 
               <Form.Group controlId="resultText">

@@ -1,10 +1,8 @@
 import React from "react";
+import { Button, Col, Form, Row } from "react-bootstrap";
+import { readFile, downloadFile, convertArrayBufferToString } from "./helper";
 
-import { Button, Col, Form, Row, Table } from "react-bootstrap";
-
-import { convertArrayBufferToString, readFile, downloadFile } from "./helper";
-
-export default class Vigenere extends React.PureComponent {
+export default class SuperEncryption extends React.PureComponent {
   constructor(props) {
     super(props);
     this.action = null;
@@ -37,67 +35,153 @@ export default class Vigenere extends React.PureComponent {
         "Y",
         "Z",
       ],
-      rows: null,
       numOfChar: 26,
       result: null,
     };
-  }
-
-  componentDidMount() {
-    this.generateRow(26);
-  }
-
-  generateRow(numOfChar) {
-    let rows = [];
-
-    for (let i = 0; i < numOfChar; i++) {
-      rows[i] = i;
-    }
-
-    this.setState({
-      rows: rows,
-    });
   }
 
   mod(n, m) {
     return ((n % m) + m) % m;
   }
 
-  encrypt(plainText, key, resultOption) {
+  vigenereEncrypt(text, key) {
     const { alphabets, numOfChar } = this.state;
     let result = "";
-    for (let i = 0; i < plainText.length; i++) {
+    for (let i = 0; i < text.length; i++) {
       let row = alphabets.indexOf(key[i]);
-      let col = alphabets.indexOf(plainText[i]);
+      let col = alphabets.indexOf(text[i]);
       result += alphabets[(col + row) % numOfChar];
-      if (resultOption === "secondOption") if (i % 5 === 4) result += " ";
     }
-    this.setState({
-      result: result,
-    });
-    this.resultText.value = result;
+    return result;
   }
 
-  decrypt(cipherText, key, resultOption) {
+  vigenereDecrypt(text, key) {
     const { alphabets, numOfChar } = this.state;
     let result = "";
-    for (let i = 0; i < cipherText.length; i++) {
+    for (let i = 0; i < text.length; i++) {
       let row = alphabets.indexOf(key[i]);
-      let col = alphabets.indexOf(cipherText[i]);
+      let col = alphabets.indexOf(text[i]);
       result += alphabets[this.mod(col - row, numOfChar)];
-      if (resultOption === "secondOption") if (i % 5 === 4) result += " ";
     }
-    result = result.toLowerCase();
+    return result.toLowerCase();
+  }
+
+  transposeEncrypt = (text, kvalue) => {
+    let length = text.length;
+
+    let encryptMatrix = [];
+
+    for (let i = 0; i < kvalue; i++) {
+      encryptMatrix.push([]);
+    }
+
+    let i = 0;
+
+    while (i < length) {
+      for (let j = 0; j < kvalue; j++) {
+        encryptMatrix[j].push(text.charAt(i));
+        i++;
+      }
+    }
+
+    let result = "";
+    var index;
+    for (index in encryptMatrix) {
+      let arrayString = encryptMatrix[index]
+        .toString()
+        .replace(/,/gi, "")
+        .toUpperCase();
+      result = result + arrayString;
+    }
+    return result;
+  };
+
+  transposeDecrypt = (text, kvalue) => {
+    let length = text.length;
+
+    let decryptMatrix = [];
+
+    let n = Math.ceil(length / kvalue);
+
+    for (let i = 0; i < n; i++) {
+      decryptMatrix.push([]);
+    }
+
+    let i = 0;
+
+    while (i < length) {
+      for (let j = 0; j < n; j++) {
+        if (j * kvalue + decryptMatrix[j].length < length) {
+          decryptMatrix[j].push(text.charAt(i));
+          i++;
+        } else {
+          decryptMatrix[j].push("");
+        }
+      }
+    }
+
+    let result = "";
+    var index;
+    for (index in decryptMatrix) {
+      let arrayString = decryptMatrix[index]
+        .toString()
+        .replace(/,/gi, "")
+        .toUpperCase();
+      result = result + arrayString;
+    }
+    return result;
+  };
+
+  encrypt = (text, key, kvalue, resultOption) => {
+    let partialResult = this.vigenereEncrypt(text, key);
+    let result = this.transposeEncrypt(partialResult, kvalue);
+    if (resultOption === "secondOption") {
+      let newResult = "";
+      for (let i = 0; i < result.length; i += 5) {
+        newResult =
+          newResult +
+          result.charAt(i) +
+          result.charAt(i + 1) +
+          result.charAt(i + 2) +
+          result.charAt(i + 3) +
+          result.charAt(i + 4) +
+          " ";
+      }
+      result = newResult;
+    }
     this.setState({
       result: result,
     });
     this.resultText.value = result;
-  }
+  };
+
+  decrypt = (text, key, kvalue, resultOption) => {
+    let partialResult = this.transposeDecrypt(text, kvalue);
+    let result = this.vigenereDecrypt(partialResult, key);
+    if (resultOption === "secondOption") {
+      let newResult = "";
+      for (let i = 0; i < result.length; i += 5) {
+        newResult =
+          newResult +
+          result.charAt(i) +
+          result.charAt(i + 1) +
+          result.charAt(i + 2) +
+          result.charAt(i + 3) +
+          result.charAt(i + 4) +
+          " ";
+      }
+      result = newResult;
+    }
+    this.setState({
+      result: result,
+    });
+    this.resultText.value = result;
+  };
 
   handleSubmit = (event) => {
     event.preventDefault();
     let key = event.target.key.value.toUpperCase();
-    let autoKey = event.target.autoKey.checked;
+    let kvalue = event.target.kvalue.value;
     let resultOption = event.target.resultOption.value;
 
     if (event.target.inputFile.files.length > 0) {
@@ -109,35 +193,6 @@ export default class Vigenere extends React.PureComponent {
         let text = convertArrayBufferToString(buffer)
           .replace(/[^A-Za-z]/g, "")
           .toUpperCase();
-        if (autoKey) {
-          key += text;
-          key = key.substr(0, text.length);
-        } else {
-          if (key.length < text.length) {
-            let numOfRepeat =
-              Math.ceil((text.length - key.length) / key.length) + 1;
-            key = key.repeat(numOfRepeat).substr(0, text.length);
-          } else {
-            key = key.substr(0, text.length);
-          }
-        }
-
-        this.fullKey.value = key;
-
-        if (this.action === "encrypt") {
-          this.encrypt(text, key, resultOption);
-        } else {
-          this.decrypt(text, key, resultOption);
-        }
-      });
-    } else {
-      let text = event.target.inputText.value
-        .replace(/[^A-Za-z]/g, "")
-        .toUpperCase();
-      if (autoKey) {
-        key += text;
-        key = key.substr(0, text.length);
-      } else {
         if (key.length < text.length) {
           let numOfRepeat =
             Math.ceil((text.length - key.length) / key.length) + 1;
@@ -145,23 +200,36 @@ export default class Vigenere extends React.PureComponent {
         } else {
           key = key.substr(0, text.length);
         }
-      }
-
-      this.fullKey.value = key;
-
-      if (this.action === "encrypt") {
-        this.encrypt(text, key, resultOption);
+        if (this.action === "encrypt") {
+          this.encrypt(text, key, kvalue, resultOption);
+        } else {
+          this.decrypt(text, key, kvalue, resultOption);
+        }
+      });
+    } else {
+      let text = event.target.inputText.value
+        .replace(/[^A-Za-z]/g, "")
+        .toUpperCase();
+      if (key.length < text.length) {
+        let numOfRepeat =
+          Math.ceil((text.length - key.length) / key.length) + 1;
+        key = key.repeat(numOfRepeat).substr(0, text.length);
       } else {
-        this.decrypt(text, key, resultOption);
+        key = key.substr(0, text.length);
+      }
+      if (this.action === "encrypt") {
+        this.encrypt(text, key, kvalue, resultOption);
+      } else {
+        this.decrypt(text, key, kvalue, resultOption);
       }
     }
   };
 
   render() {
-    const { alphabets, rows, numOfChar, result } = this.state;
+    const { result } = this.state;
     return (
       <React.Fragment>
-        <Row className="margin-bottom-md">
+        <Row>
           <Col xs={6} className="content-start">
             <Form onSubmit={this.handleSubmit}>
               <Form.Group controlId="inputText">
@@ -178,22 +246,9 @@ export default class Vigenere extends React.PureComponent {
                 <Form.Control type="text" required />
               </Form.Group>
 
-              <Form.Group controlId="autoKey">
-                <Form.Check
-                  type="checkbox"
-                  label="Use Auto-Key Vigenere Cipher"
-                />
-              </Form.Group>
-
-              <Form.Group controlId="fullKey">
-                <Form.Label>Full Key</Form.Label>
-                <Form.Control
-                  type="text"
-                  readOnly
-                  ref={(ref) => {
-                    this.fullKey = ref;
-                  }}
-                />
+              <Form.Group controlId="kvalue">
+                <Form.Label>K value</Form.Label>
+                <Form.Control type="number" required />
               </Form.Group>
 
               <Form.Group controlId="resultOption">
@@ -246,46 +301,7 @@ export default class Vigenere extends React.PureComponent {
               </Button>
             </Form>
           </Col>
-          <Col xs={6} className="content-end">
-            {rows ? (
-              numOfChar === 26 ? (
-                <Table striped hover responsive="xl" size="sm">
-                  <thead>
-                    <tr>
-                      <th></th>
-                      {alphabets.map((char, idx) => {
-                        return <th key={idx}>{char}</th>;
-                      })}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {alphabets.map((char, idx) => {
-                      return (
-                        <tr key={idx}>
-                          <td>{char}</td>
-                          {rows.map((itr) => {
-                            return (
-                              <td key={itr}>
-                                {
-                                  alphabets[
-                                    (idx + idx * numOfChar + itr) % numOfChar
-                                  ]
-                                }
-                              </td>
-                            );
-                          })}
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </Table>
-              ) : (
-                ""
-              )
-            ) : (
-              ""
-            )}
-          </Col>
+          ;
         </Row>
       </React.Fragment>
     );
