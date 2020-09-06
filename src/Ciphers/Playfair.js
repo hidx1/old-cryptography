@@ -231,7 +231,7 @@ export default class Playfair extends React.PureComponent {
     const { result } = this.state;
     return (
       <React.Fragment>
-        <Row>
+        <Row className="margin-bottom-md">
           <Col xs={6} className="content-start">
             <Form onSubmit={this.handleSubmit}>
               <Form.Group controlId="inputText">
