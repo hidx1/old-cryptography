@@ -10,6 +10,7 @@ import Header from './Header';
 import Vigenere from './Ciphers/Vigenere';
 import FullVigenere from './Ciphers/FullVigenere';
 import ExtendedVigenere from './Ciphers/ExtendedVigenere';
+import Hill from './Ciphers/Hill';
 
 function App() {
   return (
@@ -64,7 +65,7 @@ function App() {
                   Affine Cipher
                 </Tab.Pane>
                 <Tab.Pane eventKey="hill">
-                  Hill Cipher
+                  <Hill/>
                 </Tab.Pane>
               </Tab.Content>
             </Col>

@@ -9,6 +9,7 @@ import {
 } from 'react-bootstrap';
 
 import {
+  convertArrayBufferToString,
   readFile,
   downloadFile,
 } from './helper';
@@ -47,14 +48,14 @@ export default class Vigenere extends React.PureComponent {
     return ((n % m) + m) % m;
   }
 
-  encrypt(plainText, key) {
+  encrypt(plainText, key, resultOption) {
     const { alphabets, numOfChar } = this.state;
     let result = "";
     for (let i = 0; i < plainText.length; i++) {
       let row = alphabets.indexOf(key[i]);
       let col = alphabets.indexOf(plainText[i]);
       result += alphabets[(col+row)%numOfChar];
-      if (i % 5 === 4) result += " ";
+      if (resultOption === "secondOption") if (i % 5 === 4) result += " ";
     }
     this.setState({
       result: result,
@@ -62,14 +63,14 @@ export default class Vigenere extends React.PureComponent {
     this.resultText.value = result;
   }
 
-  decrypt(cipherText, key) {
+  decrypt(cipherText, key, resultOption) {
     const { alphabets, numOfChar } = this.state;
     let result = "";
     for (let i = 0; i < cipherText.length; i++) {
       let row = alphabets.indexOf(key[i]);
       let col = alphabets.indexOf(cipherText[i]);
       result += alphabets[this.mod(col-row, numOfChar)];
-      if (i % 5 === 4) result += " ";
+      if (resultOption === "secondOption") if (i % 5 === 4) result += " ";
     }
     result = result.toLowerCase();
     this.setState({
@@ -78,17 +79,19 @@ export default class Vigenere extends React.PureComponent {
     this.resultText.value = result;
   }
 
-  handleSubmit = (event) => {
+  handleSubmit = (event) => { 
     event.preventDefault();
     let key = event.target.key.value.toUpperCase();
     let autoKey = event.target.autoKey.checked;
-
+    let resultOption = event.target.resultOption.value;
+    
     if (event.target.inputFile.files.length > 0) {
       let file = event.target.inputFile.files[0];
       let result = readFile(file);
       event.target.inputFile.value = "";
       result.then(res => {
-        let text = res.replace(/[^A-Za-z]/g, "").toUpperCase();
+        let buffer = new Uint8Array(res);
+        let text = convertArrayBufferToString(buffer).replace(/[^A-Za-z]/g, "").toUpperCase();
         if (autoKey) {
           key += text;
           key = key.substr(0, text.length);
@@ -104,9 +107,9 @@ export default class Vigenere extends React.PureComponent {
         this.fullKey.value = key;
         
         if (this.action === "encrypt") {
-          this.encrypt(text, key);
+          this.encrypt(text, key, resultOption);
         } else {
-          this.decrypt(text, key);
+          this.decrypt(text, key, resultOption);
         }
       });
     } else {
@@ -126,9 +129,9 @@ export default class Vigenere extends React.PureComponent {
       this.fullKey.value = key;
       
       if (this.action === "encrypt") {
-        this.encrypt(text, key);
+        this.encrypt(text, key, resultOption);
       } else {
-        this.decrypt(text, key);
+        this.decrypt(text, key, resultOption);
       }
     }
   }
@@ -137,7 +140,7 @@ export default class Vigenere extends React.PureComponent {
     const { alphabets, rows, numOfChar, result } = this.state;
     return (
       <React.Fragment>
-        <Row>
+        <Row className="margin-bottom-md">
           <Col xs={6} className="content-start">
             <Form onSubmit={this.handleSubmit}>
 
@@ -162,6 +165,14 @@ export default class Vigenere extends React.PureComponent {
               <Form.Group controlId="fullKey">
                 <Form.Label>Full Key</Form.Label> 
                 <Form.Control type="text" readOnly ref={(ref)=>{this.fullKey=ref}}/>
+              </Form.Group>
+
+              <Form.Group controlId="resultOption">
+                <Form.Label>Result Option</Form.Label>
+                <Form.Control as="select">
+                  <option value="firstOption">No Spaces</option>
+                  <option value="secondOption">5-word Group</option>
+                </Form.Control>
               </Form.Group>
 
               <Form.Group controlId="resultText">

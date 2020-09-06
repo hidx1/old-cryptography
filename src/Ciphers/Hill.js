@@ -5,16 +5,14 @@ import {
   Col,
   Form,
   Row,
-  Table,
 } from 'react-bootstrap';
 
 import {
-  convertArrayBufferToString,
   readFile,
   downloadFile,
 } from './helper';
 
-export default class FullVigenere extends React.PureComponent {
+export default class Hill extends React.PureComponent {
   constructor(props) {
     super(props);
     this.action = null;
@@ -23,7 +21,6 @@ export default class FullVigenere extends React.PureComponent {
                   "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
                   "U", "V", "W", "X", "Y", "Z"],
       rows: null,
-      table: null,
       numOfChar: 26,
       result: null,
     }
@@ -31,7 +28,6 @@ export default class FullVigenere extends React.PureComponent {
 
   componentDidMount() {
     this.generateRow(26);
-    this.generatePermutationTable(this.state.alphabets);
   }
 
   generateRow(numOfChar) {
@@ -46,56 +42,18 @@ export default class FullVigenere extends React.PureComponent {
     });
   }
 
-  permute(charList) {
-    let array = charList.slice(0); //copy array
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
+  mod(n, m) {
+    return ((n % m) + m) % m;
   }
 
-  generatePermutationTable(alphabets) {
-    const { numOfChar } = this.state;
-    const charList = alphabets.slice(0); //copy array
-    let array = [];
-    for (let i = 0; i < numOfChar; i++) {
-      array.push(this.permute(charList));
-    }
-    this.setState({
-      table: array,
-    });
-  }
-
-  // generateTable(numOfChar) {
-  //   let row = 0;
-  //   let table = [];
-  //   let stop = false;
-
-  //   for (let i = 0; row < numOfChar; i++) {
-  //     if (i % numOfChar === 0 && i !== 0) {
-  //       row++;
-  //       i = 0;
-  //       if (row === numOfChar) {
-  //         stop = true;
-  //       } 
-  //     }
-  //     if (!stop) table[row*numOfChar + i] = this.state.alphabets[(row+i)%numOfChar];
-  //   }
-
-  //   this.setState({
-  //     table: table,
-  //   });
-  // }
-
-  encrypt(plainText, key, resultOption) {
-    const { alphabets, table } = this.state;
+  encrypt(plainText, key) {
+    const { alphabets, numOfChar } = this.state;
     let result = "";
     for (let i = 0; i < plainText.length; i++) {
       let row = alphabets.indexOf(key[i]);
       let col = alphabets.indexOf(plainText[i]);
-      result += table[row][col];
-      if (resultOption === "secondOption") if (i % 5 === 4) result += " ";
+      result += alphabets[(col+row)%numOfChar];
+      if (i % 5 === 4) result += " ";
     }
     this.setState({
       result: result,
@@ -103,34 +61,33 @@ export default class FullVigenere extends React.PureComponent {
     this.resultText.value = result;
   }
 
-  decrypt(cipherText, key, resultOption) {
-    const { alphabets, table } = this.state;
+  decrypt(cipherText, key) {
+    const { alphabets, numOfChar } = this.state;
     let result = "";
     for (let i = 0; i < cipherText.length; i++) {
       let row = alphabets.indexOf(key[i]);
-      let col = table[row].indexOf(cipherText[i]);
-      result += alphabets[col];
-      if (resultOption === "secondOption") if (i % 5 === 4) result += " ";
+      let col = alphabets.indexOf(cipherText[i]);
+      result += alphabets[this.mod(col-row, numOfChar)];
+      if (i % 5 === 4) result += " ";
     }
+    result = result.toLowerCase();
     this.setState({
       result: result,
     });
-    this.resultText.value = result.toLowerCase();
+    this.resultText.value = result;
   }
 
   handleSubmit = (event) => {
     event.preventDefault();
     let key = event.target.key.value.toUpperCase();
     let autoKey = event.target.autoKey.checked;
-    let resultOption = event.target.resultOption.value;
 
     if (event.target.inputFile.files.length > 0) {
       let file = event.target.inputFile.files[0];
       let result = readFile(file);
       event.target.inputFile.value = "";
       result.then(res => {
-        let buffer = new Uint8Array(res);
-        let text = convertArrayBufferToString(buffer).replace(/[^A-Za-z]/g, "").toUpperCase();
+        let text = res.replace(/[^A-Za-z]/g, "").toUpperCase();
         if (autoKey) {
           key += text;
           key = key.substr(0, text.length);
@@ -146,9 +103,9 @@ export default class FullVigenere extends React.PureComponent {
         this.fullKey.value = key;
         
         if (this.action === "encrypt") {
-          this.encrypt(text, key, resultOption);
+          this.encrypt(text, key);
         } else {
-          this.decrypt(text, key, resultOption);
+          this.decrypt(text, key);
         }
       });
     } else {
@@ -168,19 +125,19 @@ export default class FullVigenere extends React.PureComponent {
       this.fullKey.value = key;
       
       if (this.action === "encrypt") {
-        this.encrypt(text, key, resultOption);
+        this.encrypt(text, key);
       } else {
-        this.decrypt(text, key, resultOption);
+        this.decrypt(text, key);
       }
     }
   }
 
   render() {
-    const { alphabets, rows, table, numOfChar, result } = this.state;
+    const { result } = this.state;
     return (
       <React.Fragment>
-        <Row className="margin-bottom-md">
-          <Col xs={6} className="content-start">
+        <Row>
+          <Col xs={12} className="content-start">
             <Form onSubmit={this.handleSubmit}>
 
               <Form.Group controlId="inputText">
@@ -206,14 +163,6 @@ export default class FullVigenere extends React.PureComponent {
                 <Form.Control type="text" readOnly ref={(ref)=>{this.fullKey=ref}}/>
               </Form.Group>
 
-              <Form.Group controlId="resultOption">
-                <Form.Label>Result Option</Form.Label>
-                <Form.Control as="select">
-                  <option value="firstOption">No Spaces</option>
-                  <option value="secondOption">5-word Group</option>
-                </Form.Control>
-              </Form.Group>
-              
               <Form.Group controlId="resultText">
                 <Form.Label>Result</Form.Label>
                 <Form.Control as="textarea" rows="6" ref={(ref)=>{this.resultText=ref}}/>
@@ -222,19 +171,11 @@ export default class FullVigenere extends React.PureComponent {
               <Button 
                 variant="success"
                 type="button"
-                className="margin-bottom-xs margin-right-sm"
+                className="margin-bottom-xs"
                 onClick={() => downloadFile("result", result)}
               > Download Result
               </Button>
               
-              <Button 
-                variant="warning"
-                type="button"
-                className="margin-bottom-xs"
-                onClick={() => this.generatePermutationTable(alphabets)}
-              > Randomize Vigenere Square
-              </Button>
-
               <Button 
                 variant="primary"
                 type="submit"
@@ -251,39 +192,6 @@ export default class FullVigenere extends React.PureComponent {
               > Decrypt
               </Button>
             </Form>
-          </Col>
-          <Col xs={6} className="content-end">
-          { rows ? 
-            numOfChar === 26 ? (
-              <Table striped hover responsive="xl" size="sm">
-                <thead>
-                  <tr>
-                    <th></th>
-                    { alphabets.map((char, idx) => {
-                      return (
-                        <th key={idx}>{char}</th>
-                      )
-                    })}
-                  </tr>
-                </thead>
-                <tbody>
-                  { alphabets.map((char, idx) => {
-                    return (
-                      <tr key={idx}>
-                        <td>{char}</td>
-                        { rows.map(itr => {
-                          return (
-                            <td key={itr}>{table[idx][itr]}</td>
-                          )
-                        })}
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </Table>
-            )
-            : ""
-          : ""}
           </Col>
         </Row>
       </React.Fragment>

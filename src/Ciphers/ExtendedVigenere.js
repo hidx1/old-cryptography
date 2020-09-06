@@ -8,7 +8,10 @@ import {
 } from 'react-bootstrap';
 
 import {
+  convertArrayBufferToString,
   readFile,
+  readFileAsString,
+  downloadFile,
   downloadBinaryFile,
 } from './helper';
 
@@ -22,6 +25,7 @@ export default class ExtendedVigenere extends React.PureComponent {
       table: null,
       numOfChar: 256,
       result: null,
+      extension: null,
     }
   }
 
@@ -80,14 +84,22 @@ export default class ExtendedVigenere extends React.PureComponent {
   encrypt(plainText, key) {
     const { alphabets, numOfChar } = this.state;
     let result = "";
+    let resultBuffer = null;
+    resultBuffer = new Uint8Array(plainText.length);
     for (let i = 0; i < plainText.length; i++) {
       let row = alphabets.indexOf(key[i]);
-      let col = alphabets.indexOf(plainText[i]);
+      let col = null;
+      if (typeof plainText === "string") {
+        col = alphabets.indexOf(plainText[i]);
+      } else {
+        col = alphabets.indexOf(String.fromCharCode(plainText[i]))
+      }
+      resultBuffer[i] = (col+row)%numOfChar;
       result += alphabets[(col+row)%numOfChar];
-      // if (i % 5 === 4) result += " ";
     }
     this.setState({
       result: result,
+      resultBuffer: resultBuffer,
     });
     this.resultText.value = result;
   }
@@ -95,14 +107,22 @@ export default class ExtendedVigenere extends React.PureComponent {
   decrypt(cipherText, key) {
     const { alphabets, numOfChar } = this.state;
     let result = "";
+    let resultBuffer = null;
+    resultBuffer = new Uint8Array(cipherText.length);
     for (let i = 0; i < cipherText.length; i++) {
       let row = alphabets.indexOf(key[i]);
-      let col = alphabets.indexOf(cipherText[i]);
+      let col = null;
+      if (typeof cipherText === "string") {
+        col = alphabets.indexOf(cipherText[i]);
+      } else {
+        col = alphabets.indexOf(String.fromCharCode(cipherText[i]));
+      }
+      resultBuffer[i] = (this.mod(col-row, numOfChar));
       result += alphabets[this.mod(col-row, numOfChar)];
-      // if (i % 5 === 4) result += " ";
     }
     this.setState({
       result: result,
+      resultBuffer: resultBuffer,
     });
     this.resultText.value = result;
   }
@@ -111,12 +131,31 @@ export default class ExtendedVigenere extends React.PureComponent {
     event.preventDefault();
     let key = event.target.key.value;
     let autoKey = event.target.autoKey.checked;
-    
+
     if (event.target.inputFile.files.length > 0) {
       let file = event.target.inputFile.files[0];
-      let result = readFile(file);
+      let fileType = file.name.split('.').pop();
+      this.setState({
+        extension: fileType,
+      });
+      let result = null;
+      if (fileType === "txt") {
+        result = readFileAsString(file);
+      } else {
+        result = readFile(file);
+      }
       event.target.inputFile.value = "";
-      result.then(text => {
+      result.then(res => {
+        let buffer = null;
+        let text = null;
+        if (fileType === "txt") {
+          buffer = res;
+          text = res;
+        } else {
+          buffer = new Uint8Array(res);
+          text = convertArrayBufferToString(buffer);
+        }
+        
         if (autoKey) {
           key += text;
           key = key.substr(0, text.length);
@@ -132,12 +171,15 @@ export default class ExtendedVigenere extends React.PureComponent {
         this.fullKey.value = key;
         
         if (this.action === "encrypt") {
-          this.encrypt(text, key);
+          this.encrypt(buffer, key);
         } else {
-          this.decrypt(text, key);
+          this.decrypt(buffer, key);
         }
       });
     } else {
+      this.setState({
+        extension: null,
+      });
       let text = event.target.inputText.value;
       if (autoKey) {
         key += text;
@@ -162,10 +204,10 @@ export default class ExtendedVigenere extends React.PureComponent {
   }
 
   render() {
-    const { result } = this.state;
+    const { result, resultBuffer, extension } = this.state;
     return (
       <React.Fragment>
-        <Row>
+        <Row className="margin-bottom-md">
           <Col xs={12} className="content-start">
             <Form onSubmit={this.handleSubmit}>
 
@@ -200,9 +242,17 @@ export default class ExtendedVigenere extends React.PureComponent {
               <Button 
                 variant="success"
                 type="button"
+                className="margin-bottom-xs margin-right-sm"
+                onClick={() => downloadFile("result", result)}
+              > Download Result as Text
+              </Button>
+
+              <Button 
+                variant="success"
+                type="button"
                 className="margin-bottom-xs"
-                onClick={() => downloadBinaryFile("result", result)}
-              > Download Result
+                onClick={() => downloadBinaryFile("result", extension, resultBuffer)}
+              > Download Result as File
               </Button>
 
               <Button 

@@ -1,11 +1,32 @@
+function convertArrayBufferToString(array) {
+  let text = "";
+  for (let i = 0; i < array.length; i++) {
+    text += String.fromCharCode(array[i]);
+  }
+  return text;
+}
+
 function readFile(file) {
   return new Promise((resolve, reject) => {
     let reader = new FileReader();
     reader.onload = function(e) {
+      console.log(e.target.result);
       resolve(e.target.result);
     }
     reader.onerror = reject;
-    reader.readAsBinaryString(file);
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function readFileAsString(file) {
+  return new Promise((resolve, reject) => {
+    let reader = new FileReader();
+    reader.onload = function(e) {
+      console.log(e.target.result);
+      resolve(e.target.result);
+    }
+    reader.onerror = reject;
+    reader.readAsText(file);
   });
 }
 
@@ -27,23 +48,15 @@ function downloadFile(filename, data) {
   }
 }
 
-function downloadBinaryFile(filename, binaryString) {
-  if (binaryString) {
-    let l, d, array;
-    d = binaryString;
-    l = d.length;
-    array = new Uint8Array(l);
-    for (let i = 0; i < l; i++) {
-      array[i] = d.charCodeAt(i);
-    }
-    let blob = new Blob([array], {type: 'application/octet-stream'});
-    // window.location.href = URL.createObjectURL(b);
+function downloadBinaryFile(filename, extension, buffer) {
+  if (buffer) {
+    let blob = new Blob([buffer], {type: 'application/octet-stream'});
     if (window.navigator.msSaveOrOpenBlob) {
-      window.navigator.msSaveBlob(blob, filename);
+      window.navigator.msSaveBlob(blob, filename + '.' + extension);
     } else {
       let elem = window.document.createElement('a');
       elem.href = window.URL.createObjectURL(blob);
-      elem.download = filename;        
+      elem.download = filename + '.' + extension;
       document.body.appendChild(elem);
       elem.click();        
       document.body.removeChild(elem);
@@ -54,7 +67,9 @@ function downloadBinaryFile(filename, binaryString) {
 }
 
 export {
+  convertArrayBufferToString,
   readFile,
+  readFileAsString,
   downloadFile,
   downloadBinaryFile,
 };
