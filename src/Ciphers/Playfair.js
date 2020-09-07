@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Col, Form, Row } from "react-bootstrap";
-import { readFile, downloadFile } from "./helper";
+import { readFileAsString, downloadFile } from "./helper";
 
 export default class Playfair extends React.PureComponent {
   constructor(props) {
@@ -234,7 +234,7 @@ export default class Playfair extends React.PureComponent {
 
     if (event.target.inputFile.files.length > 0) {
       let file = event.target.inputFile.files[0];
-      let result = readFile(file);
+      let result = readFileAsString(file);
       event.target.inputFile.value = "";
       result.then((res) => {
         let text = res.replace(/[^A-Za-z]/g, "").toLowerCase();
@@ -261,7 +261,7 @@ export default class Playfair extends React.PureComponent {
     return (
       <React.Fragment>
         <Row className="margin-bottom-md">
-          <Col xs={6} className="content-start">
+          <Col xs={12} className="content-start">
             <Form onSubmit={this.handleSubmit}>
               <Form.Group controlId="inputText">
                 <Form.Label>Text</Form.Label>

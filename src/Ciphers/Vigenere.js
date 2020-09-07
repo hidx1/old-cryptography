@@ -1,8 +1,17 @@
-import React from "react";
+import React from 'react';
 
-import { Button, Col, Form, Row, Table } from "react-bootstrap";
+import {
+  Button,
+  Col,
+  Form,
+  Row,
+  Table,
+} from 'react-bootstrap';
 
-import { convertArrayBufferToString, readFile, downloadFile } from "./helper";
+import {
+  readFileAsString,
+  downloadFile,
+} from './helper';
 
 export default class Vigenere extends React.PureComponent {
   constructor(props) {
@@ -102,13 +111,10 @@ export default class Vigenere extends React.PureComponent {
 
     if (event.target.inputFile.files.length > 0) {
       let file = event.target.inputFile.files[0];
-      let result = readFile(file);
+      let result = readFileAsString(file);
       event.target.inputFile.value = "";
-      result.then((res) => {
-        let buffer = new Uint8Array(res);
-        let text = convertArrayBufferToString(buffer)
-          .replace(/[^A-Za-z]/g, "")
-          .toUpperCase();
+      result.then(res => {
+        let text = res.replace(/[^A-Za-z]/g, "").toUpperCase();
         if (autoKey) {
           key += text;
           key = key.substr(0, text.length);
