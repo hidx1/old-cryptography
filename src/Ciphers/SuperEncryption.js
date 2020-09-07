@@ -228,7 +228,7 @@ export default class SuperEncryption extends React.PureComponent {
     const { result } = this.state;
     return (
       <React.Fragment>
-        <Row>
+        <Row className="margin-bottom-md">
           <Col xs={12} className="content-start">
             <Form onSubmit={this.handleSubmit}>
               <Form.Group controlId="inputText">

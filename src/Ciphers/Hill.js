@@ -29,6 +29,19 @@ export default class Hill extends React.PureComponent {
     }
   }
 
+  mod(n, m) {
+    return ((n % m) + m) % m;
+  }
+
+  modInverse(a, b) {
+    a %= b;
+    for (let x = 1; x < b; x++) {
+      if ((a*x)%b === 1) {
+        return x;
+      }
+    }
+}
+
   createKeyMatrix(keyText) {
     const { alphabets } = this.state;
     let key = [];
@@ -55,6 +68,47 @@ export default class Hill extends React.PureComponent {
     ]);
   }
 
+  createInverseMatrix(keyMatrix) {
+    const { alphabets, numOfChar } = this.state;
+    const a = math.subset(keyMatrix, math.index(0, 0));
+    const b = math.subset(keyMatrix, math.index(0, 1));
+    const c = math.subset(keyMatrix, math.index(0, 2));
+    const d = math.subset(keyMatrix, math.index(1, 0));
+    const e = math.subset(keyMatrix, math.index(1, 1));
+    const f = math.subset(keyMatrix, math.index(1, 2));
+    const g = math.subset(keyMatrix, math.index(2, 0));
+    const h = math.subset(keyMatrix, math.index(2, 1));
+    const i = math.subset(keyMatrix, math.index(2, 2));
+    const A = (e*i) - (h*f);
+    const B = -((d*i) - (f*g));
+    const C = (d*h) - (e*g);
+    const D = -((b*i) - (h*c));
+    const E = (a*i) - (c*g);
+    const F = - ((a*h) - (b*g));
+    const G = (b*f) - (e*c);
+    const H = - ((a*f) - (c*d));
+    const I = (a*e) - (b*d);
+    const det = a*A + b*B + c*C;
+    const moddedDet = this.mod(det, numOfChar);
+    const inverseDet = this.modInverse(moddedDet, numOfChar);
+    const mat = math.matrix([[A, B, C], 
+                            [D, E, F], 
+                            [G, H, I]]);
+    const transpose = math.transpose(mat);
+    let result = ""
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        const elem = math.subset(transpose, math.index(i,j));
+        const moddedElem = this.mod(elem, numOfChar);
+        const index = this.mod((inverseDet * moddedElem), numOfChar);
+        const char = alphabets[index];
+        result += char;
+      }
+    }
+    const inverse = this.createKeyMatrix(result);
+    return inverse;
+  }
+
   encrypt(plainText, keyMatrix, resultOption) {
     const { alphabets, numOfChar } = this.state;
     let result = "";
@@ -63,8 +117,8 @@ export default class Hill extends React.PureComponent {
       const resultMatrix = math.multiply(keyMatrix, plainMatrix)
       for (let j = 0; j < 3; j++) {
         result += alphabets[(math.subset(resultMatrix, math.index(j,0))) % numOfChar];
+        if (resultOption === "secondOption") if (result.length % 6 === 5) result += " ";
       }
-      if (resultOption === "secondOption") if (i % 5 === 4) result += " ";
     }
     this.setState({
       result: result,
@@ -72,14 +126,17 @@ export default class Hill extends React.PureComponent {
     this.resultText.value = result;
   }
 
-  decrypt(cipherText, key, resultOption) {
+  decrypt(cipherText, keyMatrix, resultOption) {
     const { alphabets, numOfChar } = this.state;
     let result = "";
-    for (let i = 0; i < cipherText.length; i++) {
-      let row = alphabets.indexOf(key[i]);
-      let col = alphabets.indexOf(cipherText[i]);
-      result += alphabets[this.mod(col-row, numOfChar)];
-      if (resultOption === "secondOption") if (i % 5 === 4) result += " ";
+    const inverseMatrix = this.createInverseMatrix(keyMatrix);
+    for (let i = 0; i < cipherText.length; i += 3) {
+      const cipherMatrix = this.createPlainMatrix(cipherText.substr(i, 3));
+      const resultMatrix = math.multiply(inverseMatrix, cipherMatrix);
+      for (let j = 0; j < 3; j++) {
+        result += alphabets[(math.subset(resultMatrix, math.index(j,0))) % numOfChar];
+        if (resultOption === "secondOption") if (result.length % 6 === 5) result += " ";
+      }
     }
     result = result.toLowerCase();
     this.setState({
@@ -91,7 +148,6 @@ export default class Hill extends React.PureComponent {
   handleSubmit = (event) => {
     event.preventDefault();
     let key = event.target.key.value.toUpperCase();
-    let autoKey = event.target.autoKey.checked;
     let resultOption = event.target.resultOption.value;
 
     if (event.target.inputFile.files.length > 0) {
@@ -100,20 +156,7 @@ export default class Hill extends React.PureComponent {
       event.target.inputFile.value = "";
       result.then(res => {
         let text = res.replace(/[^A-Za-z]/g, "").toUpperCase();
-        if (text.length % 3 === 0) {
-          if (autoKey) {
-            key += text;
-            key = key.substr(0, text.length);
-          } else {
-            if (key.length < 9) {
-              let numOfRepeat = Math.ceil((9-key.length)/key.length)+1;
-              key = key.repeat(numOfRepeat).substr(0, 9);
-            } else {
-              key = key.substr(0, 9);
-            }
-          }
-          
-          this.fullKey.value = key;
+        if (text.length % 3 === 0 && key.length === 9) {
           const keyMatrix = this.createKeyMatrix(key);
           
           if (this.action === "encrypt") {
@@ -127,20 +170,7 @@ export default class Hill extends React.PureComponent {
       });
     } else {
       let text = event.target.inputText.value.replace(/[^A-Za-z]/g, "").toUpperCase();
-      if (text.length % 3 === 0) {
-        if (autoKey) {
-          key += text;
-          key = key.substr(0, text.length);
-        } else {
-          if (key.length < text.length) {
-            let numOfRepeat = Math.ceil((9-key.length)/key.length)+1;
-            key = key.repeat(numOfRepeat).substr(0, 9);
-          } else {
-            key = key.substr(0, 9);
-          }
-        }
-        
-        this.fullKey.value = key;
+      if (text.length % 3 === 0 && key.length === 9) {
         const keyMatrix = this.createKeyMatrix(key);
         
         if (this.action === "encrypt") {
@@ -178,14 +208,7 @@ export default class Hill extends React.PureComponent {
                 <Form.Control type="text" required/>
               </Form.Group>
 
-              <Form.Group controlId="autoKey">
-                <Form.Check type="checkbox" label="Use Auto-Key"/>
-              </Form.Group>
-
-              <Form.Group controlId="fullKey">
-                <Form.Label>Full Key</Form.Label> 
-                <Form.Control type="text" readOnly ref={(ref)=>{this.fullKey=ref}}/>
-              </Form.Group>
+              <div className="text-danger margin-bottom-md bold">Note: Key length must be 9!</div>
 
               <Form.Group controlId="resultOption">
                 <Form.Label>Result Option</Form.Label>
