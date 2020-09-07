@@ -66,27 +66,6 @@ export default class FullVigenere extends React.PureComponent {
     });
   }
 
-  // generateTable(numOfChar) {
-  //   let row = 0;
-  //   let table = [];
-  //   let stop = false;
-
-  //   for (let i = 0; row < numOfChar; i++) {
-  //     if (i % numOfChar === 0 && i !== 0) {
-  //       row++;
-  //       i = 0;
-  //       if (row === numOfChar) {
-  //         stop = true;
-  //       } 
-  //     }
-  //     if (!stop) table[row*numOfChar + i] = this.state.alphabets[(row+i)%numOfChar];
-  //   }
-
-  //   this.setState({
-  //     table: table,
-  //   });
-  // }
-
   encrypt(plainText, key, resultOption) {
     const { alphabets, table } = this.state;
     let result = "";

@@ -154,7 +154,7 @@ export default class Hill extends React.PureComponent {
             this.decrypt(text, keyMatrix, resultOption);
           }
         } else {
-          alert("Plaintext length must be divisible by 3!");
+          alert("Plaintext length must be divisible by 3 and key length is 9!");
         }
       });
     } else {
@@ -168,7 +168,7 @@ export default class Hill extends React.PureComponent {
           this.decrypt(text, keyMatrix, resultOption);
         }
       } else {
-        alert("Plaintext length must be divisible by 3!");
+        alert("Plaintext length must be divisible by 3 and key length is 9!");
       }
     }
   }

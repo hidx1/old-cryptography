@@ -69,10 +69,6 @@ export default class Vigenere extends React.PureComponent {
     });
   }
 
-  mod(n, m) {
-    return ((n % m) + m) % m;
-  }
-
   encrypt(plainText, key, resultOption) {
     const { alphabets, numOfChar } = this.state;
     let result = "";
@@ -162,7 +158,7 @@ export default class Vigenere extends React.PureComponent {
         this.decrypt(text, key, resultOption);
       }
     }
-  };
+  }
 
   render() {
     const { alphabets, rows, numOfChar, result } = this.state;

@@ -254,7 +254,7 @@ export default class Playfair extends React.PureComponent {
         this.decrypt(text, key, resultOption);
       }
     }
-  };
+  }
 
   render() {
     const { result } = this.state;

@@ -118,7 +118,7 @@ export default class Affine extends React.PureComponent {
         this.decrypt(text, mkey, bkey, resultOption);
       }
     }
-  };
+  }
 
   render() {
     const { result } = this.state;
