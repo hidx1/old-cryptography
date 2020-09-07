@@ -8,6 +8,7 @@ import ExtendedVigenere from "./Ciphers/ExtendedVigenere";
 import Playfair from "./Ciphers/Playfair";
 import Hill from "./Ciphers/Hill";
 import SuperEncryption from "./Ciphers/SuperEncryption";
+import Affine from "./Ciphers/Affine";
 
 function App() {
   return (
@@ -65,7 +66,9 @@ function App() {
                 <Tab.Pane eventKey="super">
                   <SuperEncryption />
                 </Tab.Pane>
-                <Tab.Pane eventKey="affine">Affine Cipher</Tab.Pane>
+                <Tab.Pane eventKey="affine">
+                  <Affine />
+                </Tab.Pane>
                 <Tab.Pane eventKey="hill">
                   <Hill />
                 </Tab.Pane>
