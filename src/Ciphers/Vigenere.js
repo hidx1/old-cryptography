@@ -11,6 +11,7 @@ import {
 import {
   readFileAsString,
   downloadFile,
+  mod,
 } from './helper';
 
 export default class Vigenere extends React.PureComponent {
@@ -93,7 +94,7 @@ export default class Vigenere extends React.PureComponent {
     for (let i = 0; i < cipherText.length; i++) {
       let row = alphabets.indexOf(key[i]);
       let col = alphabets.indexOf(cipherText[i]);
-      result += alphabets[this.mod(col - row, numOfChar)];
+      result += alphabets[mod(col - row, numOfChar)];
       if (resultOption === "secondOption") if (i % 5 === 4) result += " ";
     }
     result = result.toLowerCase();

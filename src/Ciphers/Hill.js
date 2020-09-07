@@ -10,6 +10,8 @@ import {
 import {
   readFileAsString,
   downloadFile,
+  mod,
+  modInverse,
 } from './helper';
 
 import { create, all } from 'mathjs';
@@ -28,19 +30,6 @@ export default class Hill extends React.PureComponent {
       result: null,
     }
   }
-
-  mod(n, m) {
-    return ((n % m) + m) % m;
-  }
-
-  modInverse(a, b) {
-    a %= b;
-    for (let x = 1; x < b; x++) {
-      if ((a*x)%b === 1) {
-        return x;
-      }
-    }
-}
 
   createKeyMatrix(keyText) {
     const { alphabets } = this.state;
@@ -89,8 +78,8 @@ export default class Hill extends React.PureComponent {
     const H = - ((a*f) - (c*d));
     const I = (a*e) - (b*d);
     const det = a*A + b*B + c*C;
-    const moddedDet = this.mod(det, numOfChar);
-    const inverseDet = this.modInverse(moddedDet, numOfChar);
+    const moddedDet = mod(det, numOfChar);
+    const inverseDet = modInverse(moddedDet, numOfChar);
     const mat = math.matrix([[A, B, C], 
                             [D, E, F], 
                             [G, H, I]]);
@@ -99,8 +88,8 @@ export default class Hill extends React.PureComponent {
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
         const elem = math.subset(transpose, math.index(i,j));
-        const moddedElem = this.mod(elem, numOfChar);
-        const index = this.mod((inverseDet * moddedElem), numOfChar);
+        const moddedElem = mod(elem, numOfChar);
+        const index = (inverseDet * moddedElem) % numOfChar;
         const char = alphabets[index];
         result += char;
       }

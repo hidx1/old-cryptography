@@ -13,6 +13,7 @@ import {
   readFileAsString,
   downloadFile,
   downloadBinaryFile,
+  mod,
 } from './helper';
 
 export default class ExtendedVigenere extends React.PureComponent {
@@ -40,10 +41,6 @@ export default class ExtendedVigenere extends React.PureComponent {
     this.setState({
       alphabets: alphabets,
     });
-  }
-
-  mod(n, m) {
-    return ((n % m) + m) % m;
   }
 
   encrypt(plainText, key) {
@@ -82,8 +79,8 @@ export default class ExtendedVigenere extends React.PureComponent {
       } else {
         col = alphabets.indexOf(String.fromCharCode(cipherText[i]));
       }
-      resultBuffer[i] = (this.mod(col-row, numOfChar));
-      result += alphabets[this.mod(col-row, numOfChar)];
+      resultBuffer[i] = (mod(col-row, numOfChar));
+      result += alphabets[mod(col-row, numOfChar)];
     }
     this.setState({
       result: result,

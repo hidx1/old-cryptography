@@ -66,10 +66,25 @@ function downloadBinaryFile(filename, extension, buffer) {
   }
 }
 
+function mod(n, m) {
+  return ((n % m) + m) % m;
+}
+
+function modInverse(a, b) {
+  a %= b;
+  for (let x = 1; x < b; x++) {
+    if ((a*x)%b === 1) {
+      return x;
+    }
+  }
+}
+
 export {
   convertArrayBufferToString,
   readFile,
   readFileAsString,
   downloadFile,
   downloadBinaryFile,
+  mod,
+  modInverse,
 };

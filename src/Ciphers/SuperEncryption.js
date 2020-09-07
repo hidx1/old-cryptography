@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Col, Form, Row } from "react-bootstrap";
-import { readFileAsString, downloadFile } from "./helper";
+import { readFileAsString, downloadFile, mod } from "./helper";
 
 export default class SuperEncryption extends React.PureComponent {
   constructor(props) {
@@ -40,10 +40,6 @@ export default class SuperEncryption extends React.PureComponent {
     };
   }
 
-  mod(n, m) {
-    return ((n % m) + m) % m;
-  }
-
   vigenereEncrypt(text, key) {
     const { alphabets, numOfChar } = this.state;
     let result = "";
@@ -61,7 +57,7 @@ export default class SuperEncryption extends React.PureComponent {
     for (let i = 0; i < text.length; i++) {
       let row = alphabets.indexOf(key[i]);
       let col = alphabets.indexOf(text[i]);
-      result += alphabets[this.mod(col - row, numOfChar)];
+      result += alphabets[mod(col - row, numOfChar)];
     }
     return result.toLowerCase();
   }
