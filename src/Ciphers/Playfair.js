@@ -86,7 +86,7 @@ export default class Playfair extends React.PureComponent {
     let keyMatrix = this.createKeyMatrix(key);
 
     let encryptedBigrams = [];
-    bigramArray.map((item) => {
+    bigramArray.forEach((item) => {
       let letter1 = item.charAt(0);
       let letter2 = item.charAt(1);
 
@@ -159,7 +159,7 @@ export default class Playfair extends React.PureComponent {
     let keyMatrix = this.createKeyMatrix(key);
 
     let decryptedBigrams = [];
-    bigramArray.map((item) => {
+    bigramArray.forEach((item) => {
       let letter1 = item.charAt(0);
       let letter2 = item.charAt(1);
 
@@ -254,7 +254,7 @@ export default class Playfair extends React.PureComponent {
         this.decrypt(text, key, resultOption);
       }
     }
-  }
+  };
 
   render() {
     const { result } = this.state;
