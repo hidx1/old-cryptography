@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Col, Form, Row } from "react-bootstrap";
-import { readFileAsString, downloadFile } from "./helper";
+import { readFileAsString, downloadFile, coprime } from "./helper";
 
 export default class Affine extends React.PureComponent {
   constructor(props) {
@@ -100,23 +100,31 @@ export default class Affine extends React.PureComponent {
       event.target.inputFile.value = "";
       result.then((res) => {
         let text = res.replace(/[^A-Za-z]/g, "").toUpperCase();
-        if (this.action === "encrypt") {
-          this.encrypt(text, mkey, bkey, resultOption);
+        if (coprime(parseInt(mkey, 26))) {
+          if (this.action === "encrypt") {
+            this.encrypt(text, mkey, bkey, resultOption);
+          } else {
+            this.decrypt(text, mkey, bkey, resultOption);
+          }
         } else {
-          this.decrypt(text, mkey, bkey, resultOption);
+          alert("M Key must be relatively prime to 26!");
         }
       });
     } else {
       let text = event.target.inputText.value
         .replace(/[^A-Za-z]/g, "")
         .toUpperCase();
-      if (this.action === "encrypt") {
-        this.encrypt(text, mkey, bkey, resultOption);
+      if (coprime(parseInt(mkey), 26)) {
+        if (this.action === "encrypt") {
+          this.encrypt(text, mkey, bkey, resultOption);
+        } else {
+          this.decrypt(text, mkey, bkey, resultOption);
+        }
       } else {
-        this.decrypt(text, mkey, bkey, resultOption);
+        alert("M Key must be relatively prime to 26!");
       }
     }
-  }
+  };
 
   render() {
     const { result } = this.state;
