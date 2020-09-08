@@ -12,6 +12,7 @@ import {
   downloadFile,
   mod,
   modInverse,
+  coprime,
 } from './helper';
 
 import { create, all } from 'mathjs';
@@ -79,23 +80,28 @@ export default class Hill extends React.PureComponent {
     const I = (a*e) - (b*d);
     const det = a*A + b*B + c*C;
     const moddedDet = mod(det, numOfChar);
-    const inverseDet = modInverse(moddedDet, numOfChar);
-    const mat = math.matrix([[A, B, C], 
-                            [D, E, F], 
-                            [G, H, I]]);
-    const transpose = math.transpose(mat);
-    let result = ""
-    for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 3; j++) {
-        const elem = math.subset(transpose, math.index(i,j));
-        const moddedElem = mod(elem, numOfChar);
-        const index = (inverseDet * moddedElem) % numOfChar;
-        const char = alphabets[index];
-        result += char;
+    const isCoprime = coprime(moddedDet, numOfChar);
+    if (isCoprime) {
+      const inverseDet = modInverse(moddedDet, numOfChar);
+      const mat = math.matrix([[A, B, C], 
+                              [D, E, F], 
+                              [G, H, I]]);
+      const transpose = math.transpose(mat);
+      let result = ""
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          const elem = math.subset(transpose, math.index(i,j));
+          const moddedElem = mod(elem, numOfChar);
+          const index = (inverseDet * moddedElem) % numOfChar;
+          const char = alphabets[index];
+          result += char;
+        }
       }
+      const inverse = this.createKeyMatrix(result);
+      return inverse;
+    } else {
+      return null;
     }
-    const inverse = this.createKeyMatrix(result);
-    return inverse;
   }
 
   encrypt(plainText, keyMatrix, resultOption) {
@@ -119,19 +125,23 @@ export default class Hill extends React.PureComponent {
     const { alphabets, numOfChar } = this.state;
     let result = "";
     const inverseMatrix = this.createInverseMatrix(keyMatrix);
-    for (let i = 0; i < cipherText.length; i += 3) {
-      const cipherMatrix = this.createPlainMatrix(cipherText.substr(i, 3));
-      const resultMatrix = math.multiply(inverseMatrix, cipherMatrix);
-      for (let j = 0; j < 3; j++) {
-        result += alphabets[(math.subset(resultMatrix, math.index(j,0))) % numOfChar];
-        if (resultOption === "secondOption") if (result.length % 6 === 5) result += " ";
+    if (inverseMatrix) {
+      for (let i = 0; i < cipherText.length; i += 3) {
+        const cipherMatrix = this.createPlainMatrix(cipherText.substr(i, 3));
+        const resultMatrix = math.multiply(inverseMatrix, cipherMatrix);
+        for (let j = 0; j < 3; j++) {
+          result += alphabets[(math.subset(resultMatrix, math.index(j,0))) % numOfChar];
+          if (resultOption === "secondOption") if (result.length % 6 === 5) result += " ";
+        }
       }
+      result = result.toLowerCase();
+      this.setState({
+        result: result,
+      });
+      this.resultText.value = result;
+    } else {
+      alert("Determinant of key matrix is not coprime of 26! Please change the key.");
     }
-    result = result.toLowerCase();
-    this.setState({
-      result: result,
-    });
-    this.resultText.value = result;
   }
 
   handleSubmit = (event) => {

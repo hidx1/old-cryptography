@@ -79,6 +79,17 @@ function modInverse(a, b) {
   }
 }
 
+function gcd(a, b) {
+  if (a === 0 || b === 0) return 0;
+  if (a === b) return a;
+  if (a > b) return gcd(a-b, b);
+  return gcd(a, b-a);
+}
+
+function coprime(a, b) {
+  return (gcd(a,b) === 1);
+}
+
 export {
   convertArrayBufferToString,
   readFile,
@@ -87,4 +98,5 @@ export {
   downloadBinaryFile,
   mod,
   modInverse,
+  coprime,
 };
