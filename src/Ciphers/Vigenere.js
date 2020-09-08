@@ -113,8 +113,13 @@ export default class Vigenere extends React.PureComponent {
       result.then(res => {
         let text = res.replace(/[^A-Za-z]/g, "").toUpperCase();
         if (autoKey) {
-          key += text;
-          key = key.substr(0, text.length);
+          if (key.length < text.length) {
+            const diff = text.length - key.length;
+            const trailer = text.substr(0, diff);
+            key += trailer;
+          } else {
+            key = key.substr(0, text.length);
+          }
         } else {
           if (key.length < text.length) {
             let numOfRepeat =
@@ -138,8 +143,13 @@ export default class Vigenere extends React.PureComponent {
         .replace(/[^A-Za-z]/g, "")
         .toUpperCase();
       if (autoKey) {
-        key += text;
-        key = key.substr(0, text.length);
+        if (key.length < text.length) {
+          const diff = text.length - key.length;
+          const trailer = text.substr(0, diff);
+          key += trailer;
+        } else {
+          key = key.substr(0, text.length);
+        }
       } else {
         if (key.length < text.length) {
           let numOfRepeat =

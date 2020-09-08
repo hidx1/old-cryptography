@@ -119,8 +119,13 @@ export default class ExtendedVigenere extends React.PureComponent {
         }
         
         if (autoKey) {
-          key += text;
-          key = key.substr(0, text.length);
+          if (key.length < text.length) {
+            const diff = text.length - key.length;
+            const trailer = text.substr(0, diff);
+            key += trailer;
+          } else {
+            key = key.substr(0, text.length);
+          }
         } else {
           if (key.length < text.length) {
             let numOfRepeat = Math.ceil((text.length-key.length)/key.length)+1;
@@ -144,8 +149,13 @@ export default class ExtendedVigenere extends React.PureComponent {
       });
       let text = event.target.inputText.value;
       if (autoKey) {
-        key += text;
-        key = key.substr(0, text.length);
+        if (key.length < text.length) {
+          const diff = text.length - key.length;
+          const trailer = text.substr(0, diff);
+          key += trailer;
+        } else {
+          key = key.substr(0, text.length);
+        }
       } else {
         if (key.length < text.length) {
           let numOfRepeat = Math.ceil((text.length-key.length)/key.length)+1;
@@ -216,6 +226,8 @@ export default class ExtendedVigenere extends React.PureComponent {
                 onClick={() => downloadBinaryFile("result", extension, resultBuffer)}
               > Download Result as File
               </Button>
+              
+              <div className="text-danger margin-bottom-md bold">Note: Download as File only available when input is file!</div>
 
               <Button 
                 variant="primary"

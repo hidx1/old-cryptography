@@ -109,8 +109,13 @@ export default class FullVigenere extends React.PureComponent {
       result.then(res => {
         let text = res.replace(/[^A-Za-z]/g, "").toUpperCase();
         if (autoKey) {
-          key += text;
-          key = key.substr(0, text.length);
+          if (key.length < text.length) {
+            const diff = text.length - key.length;
+            const trailer = text.substr(0, diff);
+            key += trailer;
+          } else {
+            key = key.substr(0, text.length);
+          }
         } else {
           if (key.length < text.length) {
             let numOfRepeat = Math.ceil((text.length-key.length)/key.length)+1;
@@ -131,8 +136,13 @@ export default class FullVigenere extends React.PureComponent {
     } else {
       let text = event.target.inputText.value.replace(/[^A-Za-z]/g, "").toUpperCase();
       if (autoKey) {
-        key += text;
-        key = key.substr(0, text.length);
+        if (key.length < text.length) {
+          const diff = text.length - key.length;
+          const trailer = text.substr(0, diff);
+          key += trailer;
+        } else {
+          key = key.substr(0, text.length);
+        }
       } else {
         if (key.length < text.length) {
           let numOfRepeat = Math.ceil((text.length-key.length)/key.length)+1;

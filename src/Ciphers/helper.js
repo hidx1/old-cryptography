@@ -10,7 +10,6 @@ function readFile(file) {
   return new Promise((resolve, reject) => {
     let reader = new FileReader();
     reader.onload = function(e) {
-      console.log(e.target.result);
       resolve(e.target.result);
     }
     reader.onerror = reject;
@@ -22,7 +21,6 @@ function readFileAsString(file) {
   return new Promise((resolve, reject) => {
     let reader = new FileReader();
     reader.onload = function(e) {
-      console.log(e.target.result);
       resolve(e.target.result);
     }
     reader.onerror = reject;

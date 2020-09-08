@@ -60,13 +60,11 @@ export default class Affine extends React.PureComponent {
     }
 
     for (let i = 0; i < length; i++) {
-      console.log("char", text.charCodeAt(i));
       let res = inverse * (text.charCodeAt(i) - 65 - b);
       while (res < 0) {
         res += 26;
       }
       res = (res % 26) + 97;
-      console.log("res", res);
       result = result + String.fromCharCode(res);
     }
 
@@ -125,7 +123,7 @@ export default class Affine extends React.PureComponent {
     return (
       <React.Fragment>
         <Row className="margin-bottom-md">
-          <Col xs={6} className="content-start">
+          <Col xs={12} className="content-start">
             <Form onSubmit={this.handleSubmit}>
               <Form.Group controlId="inputText">
                 <Form.Label>Text</Form.Label>

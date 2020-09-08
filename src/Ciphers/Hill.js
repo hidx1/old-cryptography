@@ -192,22 +192,18 @@ export default class Hill extends React.PureComponent {
             <Form onSubmit={this.handleSubmit}>
 
               <Form.Group controlId="inputText">
-                <Form.Label>Text</Form.Label>
+                <Form.Label>Text ( Text length must be divisble by 3 )</Form.Label>
                 <Form.Control as="textarea" rows="6"/>
               </Form.Group>
-
-              <div className="text-danger margin-bottom-md bold">Note: Plaintext length must be divisible by 3!</div>
 
               <Form.Group>
                 <Form.File id="inputFile" label="or upload file" />
               </Form.Group>
 
               <Form.Group controlId="key">
-                <Form.Label>Key</Form.Label> 
+                <Form.Label>Key ( Key length must be 9 )</Form.Label> 
                 <Form.Control type="text" required/>
               </Form.Group>
-
-              <div className="text-danger margin-bottom-md bold">Note: Key length must be 9!</div>
 
               <Form.Group controlId="resultOption">
                 <Form.Label>Result Option</Form.Label>
